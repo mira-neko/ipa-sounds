@@ -4,6 +4,8 @@ use std::{fmt, ops::Deref};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
 pub enum Vowels {
     CloseBackRounded,
+    CloseFrontRounded,
+    CloseFrontUnrounded,
     CloseMidFrontRounded,
     MidCentral,
     NearOpenFrontUrounded,
@@ -92,6 +94,8 @@ impl Ipa {
                 'p' => Some(Consonant { phoneme: VoicelessBilabialPlosive, is_long, is_palatalized }),
 
                 'u' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseBackRounded,      is_long }) },
+                'y' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseFrontRounded,     is_long }) },
+                'i' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseFrontUnrounded,   is_long }) },
                 'ø' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseMidFrontRounded,  is_long }) },
                 'ə' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: MidCentral,            is_long }) },
                 'æ' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: NearOpenFrontUrounded, is_long }) },
@@ -121,6 +125,8 @@ impl fmt::Display for Ipa {
                 Sound::Vowel { phoneme, is_long } => {
                     format!("{}{}", match phoneme {
                         Vowels::CloseBackRounded      => 'u',
+                        Vowels::CloseFrontRounded     => 'y',
+                        Vowels::CloseFrontUnrounded   => 'i',
                         Vowels::CloseMidFrontRounded  => 'ø',
                         Vowels::MidCentral            => 'ə',
                         Vowels::NearOpenFrontUrounded => 'æ',
