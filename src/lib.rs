@@ -4,6 +4,9 @@ use std::{fmt, ops::Deref};
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
 pub enum Vowels {
     CloseBackRounded,
+    CloseBackUnrounded,
+    CloseCentralRounded,
+    CloseCentralUnrounded,
     CloseFrontRounded,
     CloseFrontUnrounded,
     CloseMidFrontRounded,
@@ -94,6 +97,9 @@ impl Ipa {
                 'p' => Some(Consonant { phoneme: VoicelessBilabialPlosive, is_long, is_palatalized }),
 
                 'u' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseBackRounded,      is_long }) },
+                'ɯ' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseBackUnrounded,    is_long }) },
+                'ʉ' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseCentralRounded,   is_long }) },
+                'ɨ' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseCentralUnrounded, is_long }) },
                 'y' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseFrontRounded,     is_long }) },
                 'i' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseFrontUnrounded,   is_long }) },
                 'ø' => if is_palatalized { return Err(PalatalizedVowel(ipa[i])); } else { Some(Vowel { phoneme: CloseMidFrontRounded,  is_long }) },
@@ -125,6 +131,9 @@ impl fmt::Display for Ipa {
                 Sound::Vowel { phoneme, is_long } => {
                     format!("{}{}", match phoneme {
                         Vowels::CloseBackRounded      => 'u',
+                        Vowels::CloseBackUnrounded    => 'ɯ',
+                        Vowels::CloseCentralRounded   => 'ʉ',
+                        Vowels::CloseCentralUnrounded => 'ɨ',
                         Vowels::CloseFrontRounded     => 'y',
                         Vowels::CloseFrontUnrounded   => 'i',
                         Vowels::CloseMidFrontRounded  => 'ø',
