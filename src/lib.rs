@@ -37,7 +37,7 @@ pub enum Sound {
 ///
 /// ```
 /// assert_eq!(
-///     format!("{}", ipa_sounds::Ipa::new("nʲæ nʲæn").unwrap()),
+///     format!("{}", ipa_sounds::Ipa::from("nʲæ nʲæn")),
 ///     "nʲæ nʲæn"
 /// )
 /// ```
@@ -159,6 +159,18 @@ impl Deref for Ipa {
     }
 }
 
+impl From<&str> for Ipa {
+    fn from(ipa_str: &str) -> Self {
+        Self::new(ipa_str).unwrap()
+    }
+}
+
+impl From<String> for Ipa {
+    fn from(ipa_string: String) -> Self {
+        Self::from(ipa_string.as_str())
+    }
+}
+
 #[cfg(test)]
 mod ipa_build_tests {
     use super::*;
@@ -166,8 +178,8 @@ mod ipa_build_tests {
     #[test]
     fn test_nja() {
         assert_eq!(
-            Ipa::new("nʲæ"),
-            Ok(Ipa(vec![
+            Ipa::from("nʲæ"),
+            Ipa(vec![
                 Sound::Consonant {
                     phoneme: Consonants::VoicedAlveolarNasal,
                     is_long: false,
@@ -177,7 +189,7 @@ mod ipa_build_tests {
                     phoneme: Vowels::NearOpenFrontUrounded,
                     is_long: false
                 }
-            ]))
+            ])
         );
         
     }
