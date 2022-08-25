@@ -45,7 +45,7 @@ pub enum Sound {
 ///
 /// ```
 /// assert_eq!(
-///     format!("{}", ipa_sounds::Ipa::from("nʲæ nʲæn")),
+///     format!("{}", ipa_sounds::Ipa::try_from("nʲæ nʲæn").unwrap()),
 ///     "nʲæ nʲæn"
 /// )
 /// ```
@@ -72,8 +72,10 @@ impl fmt::Debug for Error {
     }
 }
 
-impl Ipa {
-    pub fn new(ipa: &str) -> Result<Self, Error> {
+impl TryFrom<&str> for Ipa {
+    type Error = Error;
+
+    fn try_from(ipa: &str) -> Result<Self, Self::Error> {
         use Sound::*;
         use Consonants::*;
         use Vowels::*;
@@ -129,6 +131,14 @@ impl Ipa {
     }
 }
 
+impl TryFrom<String> for Ipa {
+    type Error = Error;
+
+    fn try_from(ipa_string: String) -> Result<Self, Self::Error> {
+        Self::try_from(ipa_string.as_str())
+    }
+}
+
 impl fmt::Display for Ipa {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.iter().try_for_each(|&sound|
@@ -176,18 +186,6 @@ impl Deref for Ipa {
     }
 }
 
-impl From<&str> for Ipa {
-    fn from(ipa_str: &str) -> Self {
-        Self::new(ipa_str).unwrap()
-    }
-}
-
-impl From<String> for Ipa {
-    fn from(ipa_string: String) -> Self {
-        Self::from(ipa_string.as_str())
-    }
-}
-
 #[cfg(test)]
 mod ipa_build_tests {
     use super::*;
@@ -195,8 +193,8 @@ mod ipa_build_tests {
     #[test]
     fn test_nja() {
         assert_eq!(
-            Ipa::from("nʲæ"),
-            Ipa(vec![
+            Ipa::try_from("nʲæ"),
+            Ok(Ipa(vec![
                 Sound::Consonant {
                     phoneme: Consonants::VoicedAlveolarNasal,
                     is_long: false,
@@ -206,7 +204,7 @@ mod ipa_build_tests {
                     phoneme: Vowels::NearOpenFrontUrounded,
                     is_long: false
                 }
-            ])
+            ]))
         );
         
     }
@@ -214,7 +212,7 @@ mod ipa_build_tests {
     #[test]
     fn test_palatalized_vowel() {
         assert_eq!(
-            Ipa::new("æʲ"),
+            Ipa::try_from("æʲ"),
             Err(Error::PalatalizedVowel('æ'))
         );
         
@@ -223,7 +221,7 @@ mod ipa_build_tests {
     #[test]
     fn test_not_implemented() {
         assert_eq!(
-            Ipa::new("þ"),
+            Ipa::try_from("þ"),
             Err(Error::NotYetImplemented('þ'))
         );
         
@@ -237,8 +235,8 @@ mod ipa_fmt_tests {
     #[test]
     fn test_nja() {
         assert_eq!(
-            format!("{}", Ipa::new("nʲæ").unwrap()),
-            "nʲæ"
+            Ipa::try_from("nʲæ").map(|ipa| format!("{}", ipa)),
+            Ok("nʲæ".to_owned())
         );
         
     }
