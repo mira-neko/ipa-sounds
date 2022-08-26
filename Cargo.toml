@@ -1,6 +1,6 @@
 [package]
 name = "ipa-sounds"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 description = "IPA sounds"
 authors = ["Мира Лущаева <miralushch@gmail.com>"]
