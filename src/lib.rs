@@ -102,25 +102,24 @@ impl TryFrom<&str> for Ipa {
                 matches!(ipa[i + 1], 'ː')
             };
             match ipa[i] {
-                consonant @ ('n' | 'm' | 'j' | 'p') =>
-                    Ok(Some(Sound::Consonant { phoneme: Consonants::try_from(consonant).unwrap(), is_long, is_palatalized })), 
+                'ʲ' | 'ː' => None,
 
-                vowel @ ('u' | 'ɯ' | 'ʉ' | 'ɨ' | 'y' | 'i' | 'ø' | 'e' | 'ə' | 'ʊ'
-                        | 'ʏ' | 'ɪ' | 'æ' | 'ɑ' | 'a' | 'ʌ') =>
-                    if is_palatalized {
-                        Err(Error::PalatalizedVowel(ipa[i]))
+                ' ' => Some(Ok(Sound::Space)),
+
+                ch => {
+                    if let Ok(consonant) = Consonants::try_from(ch) {
+                        Some(Ok(Sound::Consonant { phoneme: consonant, is_long, is_palatalized }))
+                    } else if let Ok(vowel) = Vowels::try_from(ch) {
+                        if is_palatalized {
+                            Some(Err(Error::PalatalizedVowel(ch)))
+                        } else {
+                            Some(Ok(Sound::Vowel { phoneme: vowel, is_long }))
+                        }
                     } else {
-                        Ok(Some(Sound::Vowel { phoneme: Vowels::try_from(vowel).unwrap(), is_long }))
+                        Some(Err(Error::NotYetImplemented(ch)))
                     }
-
-                'ʲ' => Ok(None),
-                'ː' => Ok(None),
-
-                ' ' => Ok(Some(Sound::Space)),
-
-                _ => Err(Error::NotYetImplemented(ipa[i]))
+                }
             }
-            .transpose()
         })
         .try_collect()
         .map(Ipa)
