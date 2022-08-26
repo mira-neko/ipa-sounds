@@ -1,35 +1,41 @@
+#![feature(iterator_try_collect)]
+
 use std::{fmt, ops::Deref};
-use fp_vec::Fpushable;
+use value_enum::value_enum;
 
-/// Enum whith IPA vowels.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
-pub enum Vowels {
-    CloseBackRounded,
-    CloseBackUnrounded,
-    CloseCentralRounded,
-    CloseCentralUnrounded,
-    CloseFrontRounded,
-    CloseFrontUnrounded,
-    CloseMidFrontRounded,
-    CloseMidFrontUnrounded,
-    MidCentral,
-    NearCloseNearBackRounded,
-    NearCloseNearFrontRounded,
-    NearCloseNearFrontUnrounded,
-    NearOpenFrontUrounded,
-    OpenBackUnrounded,
-    OpenFrontUnrounded,
-    OpenMidBackUnrounded
-}
+value_enum!(
+    char =>
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+    pub enum Vowels {
+        CloseBackRounded            = 'u',
+        CloseBackUnrounded          = 'ɯ',
+        CloseCentralRounded         = 'ʉ',
+        CloseCentralUnrounded       = 'ɨ',
+        CloseFrontRounded           = 'y',
+        CloseFrontUnrounded         = 'i',
+        CloseMidFrontRounded        = 'ø',
+        CloseMidFrontUnrounded      = 'e',
+        MidCentral                  = 'ə',
+        NearCloseNearBackRounded    = 'ʊ',
+        NearCloseNearFrontRounded   = 'ʏ',
+        NearCloseNearFrontUnrounded = 'ɪ',
+        NearOpenFrontUrounded       = 'æ',
+        OpenBackUnrounded           = 'ɑ',
+        OpenFrontUnrounded          = 'a',
+        OpenMidBackUnrounded        = 'ʌ',
+    }
+);
 
-/// Enum whith IPA consonants.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
-pub enum Consonants {
-    VoicedAlveolarNasal,
-    VoicedBilabialNasal,
-    VoicedPalatalApproximant,
-    VoicelessBilabialPlosive
-}
+value_enum!(
+    char =>
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+    pub enum Consonants {
+        VoicedAlveolarNasal      = 'n',
+        VoicedBilabialNasal      = 'm',
+        VoicedPalatalApproximant = 'j',
+        VoicelessBilabialPlosive = 'p',
+    }
+);
 
 /// Enum for IPA sounds.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
@@ -76,13 +82,9 @@ impl TryFrom<&str> for Ipa {
     type Error = Error;
 
     fn try_from(ipa: &str) -> Result<Self, Self::Error> {
-        use Sound::*;
-        use Consonants::*;
-        use Vowels::*;
-        use Error::*;
 
         let ipa: Vec<_> = ipa.chars().collect();
-        (0..ipa.len()).fold(Ok(Vec::with_capacity(ipa.len())), |acc, i| acc.and_then(|vec| {
+        (0..ipa.len()).filter_map(|i| {
             let is_palatalized = if i == ipa.len() - 1 {
                 false
             } else {
@@ -96,37 +98,27 @@ impl TryFrom<&str> for Ipa {
                 matches!(ipa[i + 1], 'ː')
             };
             match ipa[i] {
-                'n' => Ok(Some(Consonant { phoneme: VoicedAlveolarNasal,      is_long, is_palatalized })),
-                'm' => Ok(Some(Consonant { phoneme: VoicedBilabialNasal,      is_long, is_palatalized })),
-                'j' => Ok(Some(Consonant { phoneme: VoicedPalatalApproximant, is_long, is_palatalized })),
-                'p' => Ok(Some(Consonant { phoneme: VoicelessBilabialPlosive, is_long, is_palatalized })),
+                consonant @ ('n' | 'm' | 'j' | 'p') =>
+                    Ok(Some(Sound::Consonant { phoneme: Consonants::try_from(consonant).unwrap(), is_long, is_palatalized })), 
 
-                'u' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseBackRounded,            is_long })) },
-                'ɯ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseBackUnrounded,          is_long })) },
-                'ʉ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseCentralRounded,         is_long })) },
-                'ɨ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseCentralUnrounded,       is_long })) },
-                'y' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseFrontRounded,           is_long })) },
-                'i' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseFrontUnrounded,         is_long })) },
-                'ø' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseMidFrontRounded,        is_long })) },
-                'e' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: CloseMidFrontUnrounded,      is_long })) },
-                'ə' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: MidCentral,                  is_long })) },
-                'ʊ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: NearCloseNearBackRounded,    is_long })) },
-                'ʏ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: NearCloseNearFrontRounded,   is_long })) },
-                'ɪ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: NearCloseNearFrontUnrounded, is_long })) },
-                'æ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: NearOpenFrontUrounded,       is_long })) },
-                'ɑ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: OpenBackUnrounded,           is_long })) },
-                'a' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: OpenFrontUnrounded,          is_long })) },
-                'ʌ' => if is_palatalized { Err(PalatalizedVowel(ipa[i])) } else { Ok(Some(Vowel { phoneme: OpenMidBackUnrounded,        is_long })) },
+                vowel @ ('u' | 'ɯ' | 'ʉ' | 'ɨ' | 'y' | 'i' | 'ø' | 'e' | 'ə' | 'ʊ'
+                        | 'ʏ' | 'ɪ' | 'æ' | 'ɑ' | 'a' | 'ʌ') =>
+                    if is_palatalized {
+                        Err(Error::PalatalizedVowel(ipa[i]))
+                    } else {
+                        Ok(Some(Sound::Vowel { phoneme: Vowels::try_from(vowel).unwrap(), is_long }))
+                    }
 
                 'ʲ' => Ok(None),
                 'ː' => Ok(None),
 
-                ' ' => Ok(Some(Space)),
+                ' ' => Ok(Some(Sound::Space)),
 
-                _ => Err(NotYetImplemented(ipa[i]))
+                _ => Err(Error::NotYetImplemented(ipa[i]))
             }
-            .map(|err| err.map(|to_push| (*vec).fpush(to_push)).unwrap_or(vec))
-        }))
+            .transpose()
+        })
+        .try_collect()
         .map(Ipa)
     }
 }
@@ -144,33 +136,17 @@ impl fmt::Display for Ipa {
         self.0.iter().try_for_each(|&sound|
             write!(formatter, "{}", match sound {
                 Sound::Vowel { phoneme, is_long } => {
-                    format!("{}{}", match phoneme {
-                        Vowels::CloseBackRounded            => 'u',
-                        Vowels::CloseBackUnrounded          => 'ɯ',
-                        Vowels::CloseCentralRounded         => 'ʉ',
-                        Vowels::CloseCentralUnrounded       => 'ɨ',
-                        Vowels::CloseFrontRounded           => 'y',
-                        Vowels::CloseFrontUnrounded         => 'i',
-                        Vowels::CloseMidFrontRounded        => 'ø',
-                        Vowels::CloseMidFrontUnrounded      => 'e',
-                        Vowels::MidCentral                  => 'ə',
-                        Vowels::NearCloseNearBackRounded    => 'ʊ',
-                        Vowels::NearCloseNearFrontRounded   => 'ʏ',
-                        Vowels::NearCloseNearFrontUnrounded => 'ɪ',
-                        Vowels::NearOpenFrontUrounded       => 'æ',
-                        Vowels::OpenBackUnrounded           => 'ɑ',
-                        Vowels::OpenFrontUnrounded          => 'a',
-                        Vowels::OpenMidBackUnrounded        => 'ʌ',
-                    }, if is_long {"ː"} else {""})
+                    format!("{}{}",
+                        char::from(phoneme),
+                        if is_long {"ː"} else {""}
+                    )
                 },
                 Sound::Consonant { phoneme, is_long, is_palatalized } => {
-                    format!("{}{}{}", match phoneme {
-                        Consonants::VoicedAlveolarNasal      => 'n',
-                        Consonants::VoicedBilabialNasal      => 'm',
-                        Consonants::VoicedPalatalApproximant => 'j',
-                        Consonants::VoicelessBilabialPlosive => 'p',
-                    }, if is_palatalized {"ʲ"} else {""},
-                    if is_long {"ː"} else {""})
+                    format!("{}{}{}",
+                        char::from(phoneme),
+                        if is_palatalized {"ʲ"} else {""},
+                        if is_long {"ː"} else {""}
+                    )
                 },
                 Sound::Space => " ".to_owned()
             })

@@ -1,10 +1,10 @@
 [package]
 name = "ipa-sounds"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "IPA sounds"
 authors = ["Мира Лущаева <miralushch@gmail.com>"]
 license = "MIT"
 
 [dependencies]
-fp-vec = { version = "0.1.0", git = "https://github.com/miralushch/fp-vec/" }
+value-enum = { version = "0.2.0", git = "https://github.com/miralushch/value-enum" }
