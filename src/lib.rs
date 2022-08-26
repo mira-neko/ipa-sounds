@@ -107,17 +107,24 @@ impl TryFrom<&str> for Ipa {
                 ' ' => Some(Ok(Sound::Space)),
 
                 ch => {
-                    if let Ok(consonant) = Consonants::try_from(ch) {
-                        Some(Ok(Sound::Consonant { phoneme: consonant, is_long, is_palatalized }))
-                    } else if let Ok(vowel) = Vowels::try_from(ch) {
-                        if is_palatalized {
-                            Some(Err(Error::PalatalizedVowel(ch)))
-                        } else {
-                            Some(Ok(Sound::Vowel { phoneme: vowel, is_long }))
-                        }
-                    } else {
-                        Some(Err(Error::NotYetImplemented(ch)))
-                    }
+                    Some(match (Consonants::try_from(ch), Vowels::try_from(ch)) {
+                        (Ok(consonant), _) => Ok(
+                            Sound::Consonant {
+                                phoneme: consonant,
+                                is_long,
+                                is_palatalized
+                            }
+                        ),
+                        (_, Ok(vowel)) => if is_palatalized {
+                                Err(Error::PalatalizedVowel(ch))
+                            } else {
+                                Ok(Sound::Vowel {
+                                    phoneme: vowel,
+                                    is_long
+                                })
+                            },
+                        _ => Err(Error::NotYetImplemented(ch))
+                    })
                 }
             }
         })
