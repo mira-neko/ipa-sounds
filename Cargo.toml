@@ -7,4 +7,4 @@ authors = ["Мира Лущаева <miralushch@gmail.com>"]
 license = "MIT"
 
 [dependencies]
-value-enum = { version = "0.2.0", git = "https://github.com/miralushch/value-enum" }
+value-enum = { version = "0.3.0", git = "https://github.com/miralushch/value-enum" }
