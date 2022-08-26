@@ -1,11 +1,14 @@
 #![feature(iterator_try_collect)]
 
+//! Crate with IPA sounds. Use it to parse and process IPA.
+
 use std::{fmt, ops::Deref};
 use value_enum::value_enum;
 
 value_enum!(
     char =>
     #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+    /// Enum for IPA vowels.
     pub enum Vowels {
         CloseBackRounded            = 'u',
         CloseBackUnrounded          = 'ɯ',
@@ -29,6 +32,7 @@ value_enum!(
 value_enum!(
     char =>
     #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+    /// Enum for IPA consonants.
     pub enum Consonants {
         VoicedAlveolarNasal      = 'n',
         VoicedBilabialNasal      = 'm',
