@@ -3,42 +3,42 @@
 //! Crate with IPA sounds. Use it to parse and process IPA.
 
 use std::{fmt, ops::Deref};
-use value_enum::value_enum;
+use alt_enum::alt_val_enum;
 
-value_enum!(
-    char =>
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
-    /// Enum for IPA vowels.
-    pub enum Vowels {
-        CloseBackRounded            = 'u',
-        CloseBackUnrounded          = 'ɯ',
-        CloseCentralRounded         = 'ʉ',
-        CloseCentralUnrounded       = 'ɨ',
-        CloseFrontRounded           = 'y',
-        CloseFrontUnrounded         = 'i',
-        CloseMidFrontRounded        = 'ø',
-        CloseMidFrontUnrounded      = 'e',
-        MidCentral                  = 'ə',
-        NearCloseNearBackRounded    = 'ʊ',
-        NearCloseNearFrontRounded   = 'ʏ',
-        NearCloseNearFrontUnrounded = 'ɪ',
-        NearOpenFrontUrounded       = 'æ',
-        OpenBackUnrounded           = 'ɑ',
-        OpenFrontUnrounded          = 'a',
-        OpenMidBackUnrounded        = 'ʌ',
-    }
+alt_val_enum!(
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+/// Enum for IPA vowels.
+pub vowels -> char:
+    Close back rounded: 'u',
+    Close back unrounded: 'ɯ',
+    Close central rounded: 'ʉ',
+    Close central unrounded: 'ɨ',
+    Close front rounded: 'y',
+    Close front unrounded: 'i',
+    Close-mid back rounded: 'o',
+    Close-mid back unrounded: 'ɤ',
+    Close-mid central rounded: 'ɵ',
+    Close-mid central unrounded: 'ɘ',
+    Close-mid front rounded: 'ø',
+    Close-mid front unrounded: 'e',
+    Mid central: 'ə',
+    Near close near back rounded: 'ʊ',
+    Near close near front rounded: 'ʏ',
+    Near close near front unrounded: 'ɪ',
+    NearOpen front urounded: 'æ',
+    Open back unrounded: 'ɑ',
+    Open front unrounded: 'a',
+    Open mid back unrounded: 'ʌ'
 );
 
-value_enum!(
-    char =>
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
-    /// Enum for IPA consonants.
-    pub enum Consonants {
-        VoicedAlveolarNasal      = 'n',
-        VoicedBilabialNasal      = 'm',
-        VoicedPalatalApproximant = 'j',
-        VoicelessBilabialPlosive = 'p',
-    }
+alt_val_enum!(
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd)]
+/// Enum for IPA consonants.
+pub consonants -> char:
+    Voiced alveolar nasal: 'n',
+    Voiced bilabial nasal: 'm',
+    Voiced palatal approximant: 'j',
+    Voiceless bilabial plosive: 'p',
 );
 
 /// Enum for IPA sounds.
